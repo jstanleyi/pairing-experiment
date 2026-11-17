@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {color-scheme:dark;--ink:#e9ecff;--soft:#a7b1d6;--edge:rgba(181,194,255,.14);--accent:#b7a3fc;}
+  *{box-sizing:border-box}
+  html,body{padding:0;margin:0;background:#080d1c;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;}
+  .shell {border:1px solid rgba(173,186,249,.13);border-radius:23px;background:linear-gradient(155deg,rgba(28,34,65,.93),rgba(10,15,34,.99) 65%);box-shadow:0 15px 60px rgba(0,0,0,.24);overflow:hidden;}
+  .top{padding:29px 34px 21px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+  .eyebrow{font-size:10px;font-weight:800;color:#b4a9fa;letter-spacing:.24em;text-transform:uppercase;display:flex;align-items:center;gap:9px;margin-bottom:11px;}
+  .tiny-dot{width:7px;height:7px;background:#b9a7ff;border-radius:50%;box-shadow:0 0 15px #b9a7ff}
+  h1{font-size:clamp(25px,4.5vw,43px);line-height:1.08;letter-spacing:-.05em;margin:0 0 10px;font-weight:760;}
+  .sub{font-size:14px;line-height:1.5;color:var(--soft);margin:0;}
+  .meta{border:1px solid var(--edge);border-radius:40px;padding:10px 14px;color:#d6d8f4;letter-spacing:.055em;font-size:10px;white-space:nowrap;text-transform:uppercase;display:flex;align-items:center;gap:8px;background:rgba(16,22,48,.7)}
+  .meta b{width:7px;height:7px;border-radius:50%;background:#92d6b7;box-shadow:0 0 12px #92d6b7;}
+  .arena{margin:0 20px;border:1px solid rgba(176,187,245,.13);background:radial-gradient(ellipse 75% 70% at 53% 45%,rgba(67,62,120,.17),rgba(9,14,32,0) 83%),#0b1228;border-radius:17px;position:relative;overflow:hidden;}
+  canvas{display:block;width:100%;height:390px}
+  .corner{pointer-events:none;position:absolute;top:17px;left:19px;color:#6c799e;font-size:10px;font-weight:700;letter-spacing:.14em}
+  .corner.right{left:auto;right:19px;text-align:right}
+  .bottom{padding:19px 30px 25px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .stage{display:flex;align-items:center;gap:13px;}
+  .stage-icon{width:35px;height:35px;display:grid;place-items:center;background:rgba(189,174,250,.12);border:1px solid rgba(189,174,250,.19);border-radius:11px;color:#cebcff;font-size:18px}
+  .stage strong{display:block;font-weight:700;font-size:13px;letter-spacing:.02em}
+  .stage span{display:block;font-size:11px;color:#8996bc;margin-top:4px}
+  button{border:0;border-radius:12px;background:linear-gradient(110deg,#c7b7ff,#a49cff);color:#1b1a35;padding:14px 20px;font-family:inherit;font-size:13px;font-weight:780;cursor:pointer;box-shadow:0 5px 25px rgba(151,133,242,.22);transition:transform .15s,filter .15s;min-width:170px;}
+  button:hover{filter:brightness(1.08);transform:translateY(-1px)}button:focus-visible{outline:2px solid white;outline-offset:3px}
+  button:disabled{opacity:.65;cursor:default;transform:none}
+  .results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 20px 21px;opacity:0;max-height:0;overflow:hidden;transition:opacity .5s,max-height .5s,padding .5s;padding-bottom:0;}
+  .results.shown{opacity:1;max-height:130px;padding-bottom:21px;}
+  .result{border:1px solid rgba(193,202,253,.13);background:rgba(20,27,56,.88);padding:13px 15px;border-radius:12px;min-width:0}
+  .result .g{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.14em;font-weight:800;color:#a5a7d2;margin-bottom:7px}
+  .result .names{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e9e8ff}
+  .notes{display:flex;gap:14px;justify-content:center;align-items:center;font-size:10px;letter-spacing:.055em;color:#657297;margin-top:11px}
+  .notes i{width:3px;height:3px;background:#626f9b;border-radius:50%}
+  @media(max-width:620px){.top{padding:21px 20px 17px}.meta{display:none}.arena{margin:0 11px}canvas{height:355px}.corner{font-size:8px}.bottom{padding:17px 15px 17px;align-items:stretch;flex-direction:column;gap:13px}button{width:100%}.results{grid-template-columns:1fr;gap:7px;padding-left:11px;padding-right:11px}.results.shown{max-height:320px}.result{padding:9px 13px}.notes{font-size:9px} }
+  @media(prefers-reduced-motion:reduce){.results{transition:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top"><div><div class="eyebrow"><span class="tiny-dot"></span> A very scientific social experiment</div><h1>The Pairing Experiment<span style="color:#b8a4fe">.</span></h1><p class="sub">Six wandering agents. Three unlikely alliances. One mysterious force.</p></div><div class="meta"><b></b> 06 agents / 03 pairs</div></div>
+  <div class="arena"><canvas id="world" role="img" aria-label="Animated avatars of six classmates converging into three assigned pairs"></canvas><div class="corner" id="counter">AGENT FIELD / 001</div><div class="corner right" id="readout">STATUS: IDLE</div></div>
+  <div class="bottom"><div class="stage"><div class="stage-icon" id="stageIcon">✧</div><div><strong id="statusTitle">Awaiting the experiment</strong><span id="statusDescription">Your six agents are currently roaming free.</span></div></div><button id="trigger">Begin pairing &nbsp;→</button></div>
+  <div class="results" id="results" aria-live="polite"></div>
+</div>
+<div class="notes"><span>Same draw on every device</span><i></i><span>Independent playback</span><i></i><span>Powered by Python + particles</span></div>
+<script>
+(() => {
+  'use strict';
+  const CONFIG = __PAIRING_CONFIG__;
+  const canvas = document.getElementById('world');
+  const ctx = canvas.getContext('2d');
+  const trigger = document.getElementById('trigger');
+  const readout = document.getElementById('readout');
+  const statusTitle = document.getElementById('statusTitle');
+  const statusDesc = document.getElementById('statusDescription');
+  const stageIcon = document.getElementById('stageIcon');
+  const results = document.getElementById('results');
+  let w=900,h=390,dpr=1,phase=0,phaseAt=0,last=0,t=0;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const home = [[.13,.29],[.73,.22],[.41,.19],[.21,.74],[.83,.7],[.58,.72]];
+  const dots = Array.from({length:80},()=>({x:Math.random(),y:Math.random(),r:.6+Math.random()*1.2,a:.1+Math.random()*.2}));
+  const agents = CONFIG.people.map((p,i)=>({ ...p, x:home[i][0]*900,y:home[i][1]*390,
+    vx:(Math.random()-.5)*27,vy:(Math.random()-.5)*27,
+    seed:i*1.78+0.33,homeX:home[i][0],homeY:home[i][1] }));
+  const pairColors = ['#8dd4ba','#f2bb9d','#b6a4ff'];
+  const groupCenters = () => [w*.19,w*.5,w*.81];
+  const targetFor = (id) => {
+    const index = CONFIG.pairs.findIndex(p=>p.includes(id));
+    const side = CONFIG.pairs[index][0]===id?-1:1;
+    const spread = w<470 ? 24 : 44;
+    return {x:groupCenters()[index]+side*spread,y:h*.51,index};
+  };
+  const fillResults = () => {
+    results.replaceChildren();
+    CONFIG.pairs.forEach((pair,i)=>{
+      const tile=document.createElement('div');tile.className='result';
+      const head=document.createElement('span');head.className='g';head.textContent='GROUP 0'+(i+1);
+      const names=document.createElement('div');names.className='names';names.textContent=CONFIG.people[pair[0]].name+'  +  '+CONFIG.people[pair[1]].name;
+      tile.append(head,names);results.append(tile);
+    });
+  };
+  fillResults();
+  function resize(){
+    const rect=canvas.getBoundingClientRect();
+    const oldW=w,oldH=h;w=rect.width||900;h=rect.height||390;
+    dpr=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    agents.forEach(a=>{a.x=a.x/oldW*w;a.y=a.y/oldH*h;});
+  }
+  window.addEventListener('resize',resize);resize();
+  const updateUI=()=>{
+    const settings={
+      0:['Awaiting the experiment','Your six agents are currently roaming free.','✧','Begin pairing  →','STATUS: IDLE'],
+      1:['Chaos has entered the chat','Six agents are exploring all possibilities.','✳','Pairing in progress…','STATUS: MIXING'],
+      2:['The force of teamwork','A mysterious attraction is bringing partners together.','↗','Pairing in progress…','STATUS: CONVERGING'],
+      3:['Mission accomplished','Three pairs have formed. No agents were harmed.','✓','Replay the experiment  ↻','STATUS: COMPLETE']
+    };
+    const s=settings[phase];statusTitle.textContent=s[0];statusDesc.textContent=s[1];
+    stageIcon.textContent=s[2];trigger.textContent=s[3];readout.textContent=s[4];
+    trigger.disabled=(phase===1||phase===2);
+    results.classList.toggle('shown',phase===3);
+  };
+  const start=()=>{
+    agents.forEach((a,i)=>{a.x=home[i][0]*w;a.y=home[i][1]*h;a.vx=(Math.random()-.5)*42;a.vy=(Math.random()-.5)*42;});
+    phase=1;phaseAt=t;updateUI();
+  };
+  trigger.addEventListener('click',()=>{if(phase===0||phase===3)start()});
+  const background=()=>{
+    ctx.clearRect(0,0,w,h);
+    ctx.save();
+    for(const p of dots){ctx.fillStyle=`rgba(178,193,255,${p.a})`;ctx.beginPath();ctx.arc(p.x*w,p.y*h,p.r,0,Math.PI*2);ctx.fill();}
+    ctx.strokeStyle='rgba(145,157,211,.06)';ctx.lineWidth=1;
+    const step=35;for(let x=step;x<w;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+    for(let y=step;y<h;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+    ctx.restore();
+  };
+  function roundedRect(x,y,ww,hh,rr){ctx.beginPath();ctx.roundRect(x,y,ww,hh,rr);}
+  function drawPairLinks(){
+    const reveal=phase===3;const amp=reveal?1:.56;
+    CONFIG.pairs.forEach((pair,i)=>{
+      const a=agents[pair[0]],b=agents[pair[1]];
+      const c=groupCenters()[i],cy=h*.51;
+      const halo=ctx.createRadialGradient(c,cy,8,c,cy,w<470?58:99);
+      halo.addColorStop(0,i===0?'rgba(112,227,188,.15)':i===1?'rgba(244,171,137,.14)':'rgba(193,167,255,.17)');halo.addColorStop(1,'rgba(40,44,80,0)');
+      ctx.fillStyle=halo;ctx.beginPath();ctx.arc(c,cy,w<470?58:99,0,Math.PI*2);ctx.fill();
+      ctx.save();ctx.strokeStyle=pairColors[i];ctx.globalAlpha=amp;ctx.lineWidth=2;
+      ctx.setLineDash([5,6]);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore();
+      if(reveal){
+        ctx.save();ctx.textAlign='center';ctx.fillStyle='#aab2d8';ctx.font='800 11px system-ui';
+        ctx.fillText('GROUP 0'+(i+1),c,cy+72);ctx.restore();
+      }
+    });
+  }
+  function drawAvatar(a,i){
+    const radius=w<450?19:23;
+    ctx.save();ctx.translate(a.x,a.y);
+    const glow=ctx.createRadialGradient(0,0,radius*.65,0,0,radius*1.9);
+    glow.addColorStop(0,a.color+'37');glow.addColorStop(1,a.color+'00');
+    ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,radius*1.9,0,Math.PI*2);ctx.fill();
+    ctx.shadowColor=a.color+'70';ctx.shadowBlur=15;
+    ctx.fillStyle=a.color;ctx.beginPath();ctx.arc(0,0,radius,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(255,255,255,.70)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,radius,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#25243a';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=`800 ${w<450?10:12}px system-ui`;
+    ctx.fillText(a.initial,0,1);
+    const text=a.name.length>15 ? a.name.slice(0,14)+'…' : a.name;
+    ctx.font=`650 ${w<450?10:12}px system-ui`;
+    const labelWidth=Math.max(51,Math.min(132,ctx.measureText(text).width+21));
+    ctx.fillStyle='rgba(22,28,55,.92)';roundedRect(-labelWidth/2,radius+11,labelWidth,23,8);ctx.fill();
+    ctx.strokeStyle='rgba(184,191,239,.16)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#e6e9ff';ctx.fillText(text,0,radius+22.5);
+    ctx.restore();
+  }
+  function progress(dt){
+    const elapsed=t-phaseAt;
+    if(phase===1 && elapsed>(reduced?.4:2.4)) {phase=2;phaseAt=t;updateUI();}
+    if(phase===2 && elapsed>(reduced?.4:3.4)) {phase=3;phaseAt=t;updateUI();}
+    agents.forEach((a,i)=>{
+      if(phase===0||phase===1){
+        const fast=phase===1?2.2:0.55;
+        a.vx += (Math.sin(t*1.7+i*3.1)*21+Math.cos(t*.73+i*2.3)*13)*dt*fast;
+        a.vy += (Math.cos(t*1.3+i*2.1)*22+Math.sin(t*.91+i*3.3)*13)*dt*fast;
+        const drag= Math.pow(.96,dt*60);
+        a.vx*=drag;a.vy*=drag;
+        const limit=phase===1?74:28;
+        const v=Math.hypot(a.vx,a.vy);if(v>limit){a.vx*=limit/v;a.vy*=limit/v}
+        a.x+=a.vx*dt;a.y+=a.vy*dt;
+        const pad=w<450?48:64;const left=pad,right=w-pad,top=62,bottom=h-66;
+        if(a.x<left){a.x=left;a.vx=Math.abs(a.vx)+8}
+        if(a.x>right){a.x=right;a.vx=-Math.abs(a.vx)-8}
+        if(a.y<top){a.y=top;a.vy=Math.abs(a.vy)+8}
+        if(a.y>bottom){a.y=bottom;a.vy=-Math.abs(a.vy)-8}
+      } else {
+        const target=targetFor(i);const k=phase===2?2.1:3.5;
+        const ease=1-Math.exp(-k*dt);
+        a.x+=(target.x-a.x)*ease;a.y+=(target.y-a.y)*ease;
+      }
+    });
+  }
+  const loop=(stamp)=>{
+    const seconds=stamp/1000;const dt=last?Math.min(.035,seconds-last):0;last=seconds;t=seconds;
+    progress(dt);background();
+    if(phase>=2)drawPairLinks();
+    agents.forEach(drawAvatar);
+    requestAnimationFrame(loop);
+  };
+  updateUI();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
