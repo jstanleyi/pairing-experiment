@@ -26,12 +26,12 @@ st.set_page_config(
 
 # EDIT THESE SIX NAMES. Initials are generated automatically.
 PEOPLE = [
-    "Person A",
-    "Person B",
-    "Person C",
-    "Person D",
-    "Person E",
-    "Person F",
+    "Stanley",
+    "Hasmig",
+    "Aleiya",
+    "Hannah",
+    "Joanna",
+    "Colleen",
 ]
 
 if len(PEOPLE) != 6 or len(set(PEOPLE)) != 6:
