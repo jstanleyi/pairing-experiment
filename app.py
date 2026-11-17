@@ -44,7 +44,21 @@ st.markdown(
       div[data-testid="stForm"] {border:1px solid rgba(181,194,255,.18); border-radius:17px; background:#11182e; padding:13px 18px 5px;}
       div[data-testid="stTextInput"] input {background:#0b1228; color:#e9ecff; border:1px solid rgba(181,194,255,.3);}
       div[data-testid="stTextInput"] label {color:#e9ecff;}
-      div[data-testid="stFormSubmitButton"] button {border-radius:10px; font-weight:700;}
+      div[data-testid="stFormSubmitButton"] button {
+          background: #3446A5 !important;
+          color: #FFFFFF !important;
+          border: 1px solid #7483ED !important;
+          border-radius: 10px;
+          font-weight: 700;}
+
+        div[data-testid="stFormSubmitButton"] button * {
+            color: #FFFFFF !important;
+        }
+
+        div[data-testid="stFormSubmitButton"] button:hover {
+            background: #455AC0 !important;
+        }
+      
       iframe {border-radius:22px;}
     </style>""",
     unsafe_allow_html=True,
