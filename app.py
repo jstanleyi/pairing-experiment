@@ -60,7 +60,8 @@ st.markdown(
     '<div style="font-size:11px;letter-spacing:.19em;color:#b8a4fe;font-weight:800;'
     'margin:8px 0 0">01 / SET YOUR RANDOM SEED</div>',
     unsafe_allow_html=True,
-)with st.form("choose_pairing_number", clear_on_submit=False):
+)
+with st.form("choose_pairing_number", clear_on_submit=False):
     field, apply_col, surprise_col = st.columns([3, 1.35, 1.35], vertical_alignment="bottom")
     with field:
         entered = st.text_input(
